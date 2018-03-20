@@ -7,7 +7,7 @@ import re
 import sys
 
 
-class AdjMatrix():
+class AdjMatrix:
 
     def __init__(self, weight):
         self.weight = weight
@@ -33,17 +33,24 @@ class AdjMatrix():
         return len(self.weight)
 
     def __repr__(self):
-        return str(self.weight)
+        return self.weight.__repr__()
 
 
 def read_file(file_path):
+    """
+    Used to read from CSV-like file
+    """
     with open(file_path, 'r') as f:
         data = f.readlines()
     return {"node_number": data[0], "weight": data[2:]}
 
 
 def read_form(data):
+    """
+    Used to read from Postman POST body
+    """
     tmp = re.split('\n', data)
+    # We only need the number of nodes and the weight for each edge
     node_number, _, *weight_list, _ = tmp
     return {
         "node_number": node_number,
@@ -52,9 +59,11 @@ def read_form(data):
 
 
 def init_struct(problem):
-    weight_list_splitted = [_.split(",") for _ in problem['weight']]
+    """
+    Helper function used to initialize custom class created for the problem
+    """
     adj_mat_weight = dict()
-    for (start, end, cost) in weight_list_splitted:
+    for (start, end, cost) in (_.split(",") for _ in problem['weight']):
         adj_mat_weight[(int(start)-1, int(end)-1)] = int(cost)
 
     return AdjMatrix(adj_mat_weight)
@@ -90,7 +99,9 @@ def main():
         file_path = "data/input.txt"
         print("Using default path : {}".format(file_path))
 
+    # Create a structure representing the problem from a file text
     problem = read_file(file_path)
+    # Initialization of the custom class used for solving
     adj_mat = init_struct(problem)
     print("Before F-W algorithm: {}".format(adj_mat))
     new_adj_mat = floydWarshall(adj_mat)
